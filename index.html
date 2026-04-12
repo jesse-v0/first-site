@@ -1,75 +1,87 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hello, Cunts — coming soon</title>
-    <style>
-      :root {
-        color-scheme: light dark;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>omocha — thought dump</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
 
-      * {
-        box-sizing: border-box;
-      }
+  <!-- PIN SCREEN -->
+  <div id="pin-screen">
+    <div class="pin-wrap">
+      <div class="pin-title">omocha</div>
+      <div class="pin-sub">思考の貯蔵庫</div>
+      <div class="pin-dots">
+        <span class="dot" id="d0"></span>
+        <span class="dot" id="d1"></span>
+        <span class="dot" id="d2"></span>
+        <span class="dot" id="d3"></span>
+      </div>
+      <div class="pin-pad">
+        <button class="key" data-val="1">1</button>
+        <button class="key" data-val="2">2</button>
+        <button class="key" data-val="3">3</button>
+        <button class="key" data-val="4">4</button>
+        <button class="key" data-val="5">5</button>
+        <button class="key" data-val="6">6</button>
+        <button class="key" data-val="7">7</button>
+        <button class="key" data-val="8">8</button>
+        <button class="key" data-val="9">9</button>
+        <button class="key key-blank"></button>
+        <button class="key" data-val="0">0</button>
+        <button class="key key-del" id="pin-del">⌫</button>
+      </div>
+      <div class="pin-error" id="pin-error">incorrect</div>
+    </div>
+  </div>
 
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
-        color: #1f2937;
-      }
+  <!-- MAIN APP -->
+  <div id="app" class="hidden">
 
-      main {
-        padding: 2rem 2.5rem;
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.75);
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(148, 163, 184, 0.25);
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-        text-align: center;
-      }
+    <header>
+      <div class="header-left">
+        <span class="logo">omocha</span>
+        <span class="logo-jp">おもちゃ</span>
+      </div>
+      <div class="flotsam-counter" id="flotsam-counter">— thoughts</div>
+    </header>
 
-      h1 {
-        margin: 0;
-        font-size: clamp(2rem, 6vw, 3rem);
-        font-weight: 700;
-        letter-spacing: -0.02em;
-      }
-
-      .soon {
-        display: inline-block;
-        margin-top: 1.25rem;
-        padding: 0.35rem 0.75rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #4338ca;
-        background: rgba(99, 102, 241, 0.12);
-        border-radius: 999px;
-      }
-
-      .blurb {
-        margin: 1.25rem 0 0;
-        max-width: 28rem;
-        font-size: 1rem;
-        line-height: 1.6;
-        color: #4b5563;
-      }
-    </style>
-  </head>
-  <body>
     <main>
-      <h1>Hello, Cunts</h1>
-      <p class="soon">Coming soon</p>
-      <p class="blurb">
-        This will be a personal catch-all for whatever random thought crosses your mind. Create an
-        account, dump your thoughts, and this web app will organize them for you.
-      </p>
+      <section class="input-section">
+        <textarea
+          id="thought-input"
+          placeholder="dump it here."
+          maxlength="280"
+          rows="3"
+        ></textarea>
+        <div class="input-meta">
+          <span class="char-count" id="char-count">280</span>
+          <button id="submit-btn">deposit</button>
+        </div>
+      </section>
+
+      <section class="claude-section">
+        <div class="claude-row">
+          <button id="synthesize-btn">what's on my mind?</button>
+          <div class="query-wrap">
+            <input type="text" id="query-input" placeholder="ask anything about your thoughts..." />
+            <button id="query-btn">→</button>
+          </div>
+        </div>
+        <div id="claude-output" class="claude-output hidden"></div>
+      </section>
+
+      <section class="feed-section">
+        <div id="thought-feed"></div>
+      </section>
     </main>
-  </body>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
 </html>
