@@ -1,19 +1,29 @@
 // ── Config ──
 const CORRECT_PIN = '0511';
-const SUPABASE_URL = 'https://gxnpsmpolopklnbgtthc.supabase.co';
-const SUPABASE_ANON_KEY_VAR = '__SUPABASE_ANON_KEY__'; // replaced at runtime via netlify function
+let SUPABASE_URL = null;
 
-// We read Supabase directly from the frontend using the anon key (safe for read/write with RLS off)
-// The anon key is public by design in Supabase — it's safe to use client-side
-// Sensitive key (ANTHROPIC_API_KEY) never touches the frontend — it lives only in the Netlify function
+// ── Remote config (fetches Supabase credentials from Netlify function) ──
+let _config = null;
+async function getConfig() {
+  if (_config) return _config;
+  const res = await fetch('/.netlify/functions/config');
+  _config = await res.json();
+  SUPABASE_URL = _config.supabaseUrl;
+  return _config;
+}
+
+async function getAnonKey() {
+  const config = await getConfig();
+  return config.supabaseAnonKey;
+}
 
 // ── PIN logic ──
 let pinEntry = '';
 
-const pinScreen  = document.getElementById('pin-screen');
-const app        = document.getElementById('app');
-const pinError   = document.getElementById('pin-error');
-const dots       = [0,1,2,3].map(i => document.getElementById('d' + i));
+const pinScreen = document.getElementById('pin-screen');
+const app       = document.getElementById('app');
+const pinError  = document.getElementById('pin-error');
+const dots      = [0,1,2,3].map(i => document.getElementById('d' + i));
 
 document.querySelectorAll('.key[data-val]').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -51,10 +61,7 @@ function checkPin() {
 }
 
 // ── Supabase helpers ──
-// Supabase anon key is intentionally public — it's designed for client-side use
-// Security is enforced server-side via RLS policies (disabled in phase 1, added in phase 2)
 async function sbFetch(path, options = {}) {
-  // Fetch anon key from our netlify function to avoid hardcoding in source
   const anonKey = await getAnonKey();
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     headers: {
@@ -67,15 +74,6 @@ async function sbFetch(path, options = {}) {
     ...options
   });
   return res;
-}
-
-let _anonKey = null;
-async function getAnonKey() {
-  if (_anonKey) return _anonKey;
-  const res = await fetch('/.netlify/functions/config');
-  const data = await res.json();
-  _anonKey = data.supabaseAnonKey;
-  return _anonKey;
 }
 
 async function loadThoughts() {
@@ -130,9 +128,9 @@ function updateCounter(n) {
 }
 
 // ── Submit ──
-const textarea   = document.getElementById('thought-input');
-const charCount  = document.getElementById('char-count');
-const submitBtn  = document.getElementById('submit-btn');
+const textarea  = document.getElementById('thought-input');
+const charCount = document.getElementById('char-count');
+const submitBtn = document.getElementById('submit-btn');
 
 textarea.addEventListener('input', () => {
   const remaining = 280 - textarea.value.length;
@@ -161,8 +159,6 @@ async function submitThought() {
     textarea.value = '';
     charCount.textContent = '280';
     charCount.className = 'char-count';
-
-    // Prepend to feed
     window._allThoughts = [saved, ...(window._allThoughts || [])];
     renderFeed(window._allThoughts);
     updateCounter(window._allThoughts.length);
@@ -177,10 +173,10 @@ async function submitThought() {
 }
 
 // ── Claude ──
-const claudeOutput   = document.getElementById('claude-output');
-const synthesizeBtn  = document.getElementById('synthesize-btn');
-const queryInput     = document.getElementById('query-input');
-const queryBtn       = document.getElementById('query-btn');
+const claudeOutput  = document.getElementById('claude-output');
+const synthesizeBtn = document.getElementById('synthesize-btn');
+const queryInput    = document.getElementById('query-input');
+const queryBtn      = document.getElementById('query-btn');
 
 synthesizeBtn.addEventListener('click', () => runClaude('synthesize'));
 queryBtn.addEventListener('click', () => runClaude('query'));
@@ -193,8 +189,8 @@ async function runClaude(mode) {
     return;
   }
 
-  const total = thoughts.length;
-  const batch = thoughts.slice(0, 100);
+  const total    = thoughts.length;
+  const batch    = thoughts.slice(0, 100);
   const overflow = total > 100 ? total - 100 : 0;
 
   let prompt = '';
