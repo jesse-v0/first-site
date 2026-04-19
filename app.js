@@ -1,4 +1,5 @@
 // ── Config ──
+if (localStorage.getItem('theme') === 'light') document.body.classList.add('light');
 const CORRECT_PIN = '0511';
 let SUPABASE_URL = null;
 
