@@ -1,5 +1,9 @@
 // ── Config ──
 if (localStorage.getItem('theme') === 'light') document.body.classList.add('light');
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('light');
+  localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+});
 const CORRECT_PIN = '0511';
 let SUPABASE_URL = null;
 

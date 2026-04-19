@@ -156,6 +156,44 @@ header {
   color: var(--muted);
   letter-spacing: 0.08em;
 }
+Two problems visible in the screenshot:
+
+1. The button is appearing way off to the right — the header layout is broken
+2. No console error means the click is probably not registering
+
+The inline `onclick` approach is getting blocked. Let's do it cleanly instead.
+
+**In `index.html`**, replace the toggle button you added with this simpler version:
+
+```html
+<button id="theme-toggle">☀</button>
+```
+
+**In `app.js`**, replace the single line you added at the top with this:
+
+```javascript
+if (localStorage.getItem('theme') === 'light') document.body.classList.add('light');
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('light');
+  localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+});
+```
+
+**In `style.css`**, add this to fix the button position — put it right after the `.flotsam-counter` rule:
+
+```css
+#theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--muted);
+  padding: 0;
+}
+
+#theme-toggle:hover {
+  color: var(--accent);
+}
 
 /* ── Input ── */
 .input-section {
@@ -378,4 +416,14 @@ button#query-btn:hover { color: var(--accent); border-color: var(--accent-dim); 
   .claude-row { flex-direction: column; }
   .thought-entry { grid-template-columns: 1fr; gap: 0.25rem; }
   .thought-ts { font-size: 0.6rem; }
+}
+
+body.light {
+  --bg: #f5f0eb;
+  --surface: #ffffff;
+  --border: #ddd8d0;
+  --text: #1a1a1a;
+  --muted: #888880;
+  --accent: #8b6914;
+  --accent-dim: #b8922a;
 }
